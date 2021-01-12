@@ -9,12 +9,14 @@ import {
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { SPECIAL_CONDITIONS, ZONES } from '@app/shared/constants';
 import { RequestsFacade } from '../../requests.facade';
+import { BeneficiariesService } from '../../../beneficiaries/beneficiaries.service';
 import { coordinates } from './request-address-field/request-address-field.component';
 import {
   IRequestDetails,
   RequestTypeUpdated,
 } from '../../../../shared/models/requests';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Beneficiary } from '@app/shared/models';
 
 @Component({
   selector: 'app-request-form',
@@ -28,11 +30,14 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   zones: Array<string> = Object.keys(ZONES).filter((key) => isNaN(+key));
   needs = RequestTypeUpdated;
   specialConditions = SPECIAL_CONDITIONS;
-  existentBeneficiary = false;
+  existentBeneficiary: Beneficiary = {} as Beneficiary;
   validAddress = true;
+  requestAddress = '';
+  beneficiaryName = '';
 
   constructor(
     private requestsFacade: RequestsFacade,
+    private beneficiariesService: BeneficiariesService,
     @Inject(MAT_DIALOG_DATA) protected data: { element: IRequestDetails }
   ) {}
 
@@ -101,7 +106,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         this.isEmpty(this.request) ? false : this.request.is_urgent
       ),
     });
-    if (this.isEmpty(this.request)) this.request.address = '';
+    if (!this.isEmpty(this.request)) this.requestAddress = this.request.address;
   }
 
   ngOnDestroy() {}
@@ -114,13 +119,26 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   enumUnsorted() {}
 
   checkForExistentBeneficiary(phone: any) {
-    // this function should display the hidden div if the beneficiary is found
-    // check if the logic works
-    if (phone.length === 8 && this.isEmpty(this.request))
-      this.existentBeneficiary = true;
-    else this.existentBeneficiary = false;
-    const test = this.requestsFacade.getBeneficiaresByFilter({ phone });
-    console.log(test);
+    if (phone.length === 8 && this.isEmpty(this.request)) {
+      this.beneficiariesService.getBeneficiariesByFilter({ phone }).subscribe(
+        (success) => {
+          if (success.count !== 0) {
+            this.existentBeneficiary = success.list[0];
+            this.beneficiaryName =
+              this.existentBeneficiary.last_name +
+              ' ' +
+              this.existentBeneficiary.first_name;
+          }
+          console.log(this.existentBeneficiary);
+          console.log(this.beneficiaryName);
+        },
+        (error) => {
+          setTimeout(() => {}, 3000);
+          console.error('ERROR: ' + error);
+        }
+      );
+    }
+    console.log(this.existentBeneficiary);
   }
 
   getUrgentStyleObject() {
@@ -134,22 +152,13 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     this.validAddress = event.valid;
   }
 
-  /**
-   * Checks if a object is empty (in our case the request)
-   * in order to differentiate if we are creating or editing a request now
-   *
-   * @param obj the object to check
-   */
-  isEmpty(obj: IRequestDetails) {
+  isEmpty(obj: IRequestDetails | Beneficiary) {
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) return false;
     }
     return true;
   }
 
-  /**
-   * Generates a secure password when creating a new request
-   */
   getSecret() {
     const randomNumber = (max: number) => Math.floor(Math.random() * max);
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -158,10 +167,6 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     return `${alpha}${digits.join('')}`;
   }
 
-  /**
-   * Checks if the provided password matches with the one from the request
-   * in the case of editing a request
-   */
   validatePassword() {
     if (!this.isEmpty(this.request)) {
       if (this.form.get('password').value !== this.request.secret) {

@@ -48,7 +48,7 @@
 
     <div
       style="margin-bottom: 23px"
-      *ngIf="!existentBeneficiary; else beneficiaryExists"
+      *ngIf="isEmpty(existentBeneficiary); else beneficiaryExists"
     ></div>
 
     <ng-template #beneficiaryExists>
@@ -57,7 +57,7 @@
       <div class="beneficiary">
         <div class="field" fxFlex fxLayout="column">
           <div class="title">Beneficiar existent</div>
-          <div class="value">Test name</div>
+          <div class="value">{{ beneficiaryName }}</div>
         </div>
       </div>
     </ng-template>
@@ -122,7 +122,7 @@
         <div class="title">Adresă</div>
         <app-request-address-field
           (gotCoordinates)="updateAddress($event)"
-          [selectedAddress]="request.address"
+          [selectedAddress]="requestAddress"
         ></app-request-address-field>
         <mat-error *ngIf="form.get('address').invalid && form.touched">
           atenție, eroare - cîmp obligatoriu!
