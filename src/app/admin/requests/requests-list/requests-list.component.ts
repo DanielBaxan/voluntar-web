@@ -223,9 +223,9 @@ export class RequestsListComponent implements OnInit {
     }
   }
 
-  openRequestDialog(element: IRequestDetails = null) {
+  openRequestDialog(element: IRequestDetails = {} as IRequestDetails) {
     const dialogRef = this.matDialog.open(RequestFormComponent, {
-      data: { element } || { object: 'null' },
+      data: { element },
       maxWidth: '100%',
       maxHeight: '90vh',
       panelClass: 'newrequest-custom-modalbox',
