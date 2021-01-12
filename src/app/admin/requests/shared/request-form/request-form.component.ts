@@ -94,7 +94,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         this.isEmpty(this.request) ? '' : this.request.comments
       ),
       password: new FormControl(
-        this.isEmpty(this.request) ? null : this.request.secret,
+        this.isEmpty(this.request) ? this.getSecret() : null,
         [Validators.required, Validators.minLength(5), Validators.maxLength(5)]
       ),
       urgent: new FormControl(
@@ -103,6 +103,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     });
     if (this.isEmpty(this.request)) this.request.address = '';
   }
+
   ngOnDestroy() {}
 
   getEnumKeyByEnumValue(myEnum, enumValue) {
@@ -118,6 +119,8 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     if (phone.length === 8 && this.isEmpty(this.request))
       this.existentBeneficiary = true;
     else this.existentBeneficiary = false;
+    const test = this.requestsFacade.getBeneficiaresByFilter({ phone });
+    console.log(test);
   }
 
   getUrgentStyleObject() {
@@ -131,10 +134,40 @@ export class RequestFormComponent implements OnInit, OnDestroy {
     this.validAddress = event.valid;
   }
 
+  /**
+   * Checks if a object is empty (in our case the request)
+   * in order to differentiate if we are creating or editing a request now
+   *
+   * @param obj the object to check
+   */
   isEmpty(obj: IRequestDetails) {
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) return false;
     }
     return true;
+  }
+
+  /**
+   * Generates a secure password when creating a new request
+   */
+  getSecret() {
+    const randomNumber = (max: number) => Math.floor(Math.random() * max);
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const alpha = alphabet[randomNumber(alphabet.length)];
+    const digits = Array.from({ length: 3 }, () => randomNumber(10));
+    return `${alpha}${digits.join('')}`;
+  }
+
+  /**
+   * Checks if the provided password matches with the one from the request
+   * in the case of editing a request
+   */
+  validatePassword() {
+    if (!this.isEmpty(this.request)) {
+      if (this.form.get('password').value !== this.request.secret) {
+        return true;
+      }
+    }
+    return false;
   }
 }

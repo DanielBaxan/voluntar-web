@@ -254,8 +254,13 @@
         <div class="title">Parola secretă</div>
         <div class="value">
           <input matInput formControlName="password" style="width: 150px" />
-          <mat-error *ngIf="form.get('password').invalid && form.touched">
-            atenție, eroare - cîmp obligatoriu!
+          <mat-error
+            *ngIf="
+              (validatePassword() || form.get('password').invalid) &&
+              form.touched
+            "
+          >
+            atenție, parola greșită!
           </mat-error>
         </div>
       </div>
