@@ -55,9 +55,16 @@
       <div class="arrow"></div>
 
       <div class="beneficiary">
-        <div class="field" fxFlex fxLayout="column">
+        <div
+          class="field"
+          fxFlex
+          fxLayout="column"
+          (click)="updateDataFromBeneficiary()"
+        >
           <div class="title">Beneficiar existent</div>
-          <div class="value">{{ beneficiaryName }}</div>
+          <div class="value">
+            {{ beneficiaryName }}
+          </div>
         </div>
       </div>
     </ng-template>

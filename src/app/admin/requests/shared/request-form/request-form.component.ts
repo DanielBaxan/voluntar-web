@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   Inject,
   Input,
@@ -38,6 +39,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
   constructor(
     private requestsFacade: RequestsFacade,
     private beneficiariesService: BeneficiariesService,
+    private cdr: ChangeDetectorRef,
     @Inject(MAT_DIALOG_DATA) protected data: { element: IRequestDetails }
   ) {}
 
@@ -131,6 +133,7 @@ export class RequestFormComponent implements OnInit, OnDestroy {
           }
           console.log(this.existentBeneficiary);
           console.log(this.beneficiaryName);
+          this.cdr.detectChanges();
         },
         (error) => {
           setTimeout(() => {}, 3000);
@@ -139,6 +142,20 @@ export class RequestFormComponent implements OnInit, OnDestroy {
       );
     }
     console.log(this.existentBeneficiary);
+  }
+
+  updateDataFromBeneficiary() {
+    this.form.get('last_name').patchValue(this.existentBeneficiary.last_name);
+    this.form.get('first_name').patchValue(this.existentBeneficiary.first_name);
+    this.form.get('age').patchValue(this.existentBeneficiary.age);
+    this.form.get('zone').patchValue(this.existentBeneficiary.zone);
+    this.form.get('address').patchValue(this.existentBeneficiary.address);
+    this.form.get('entrance').patchValue(this.existentBeneficiary.entrance);
+    this.form.get('floor').patchValue(this.existentBeneficiary.floor);
+    this.form.get('apartment').patchValue(this.existentBeneficiary.apartment);
+    this.form
+      .get('special_condition')
+      .patchValue(this.existentBeneficiary.special_condition);
   }
 
   getUrgentStyleObject() {
