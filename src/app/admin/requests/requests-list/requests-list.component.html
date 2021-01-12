@@ -27,7 +27,7 @@
     mat-flat-button
     type="button"
     color="primary"
-    (click)="openNewRequestDialog()"
+    (click)="openRequestDialog(null)"
     class="mb-1 ml-sm-auto"
   >
     <mat-icon>add</mat-icon>
@@ -154,7 +154,7 @@
     <ng-container matColumnDef="fixer">
       <th mat-header-cell *matHeaderCellDef>Fixer</th>
       <td mat-cell *matCellDef="let element">
-        <mat-icon>settings</mat-icon>
+        <mat-icon (click)="openRequestDialog(element)">settings</mat-icon>
         <ng-container *ngIf="element.fixer === 'None'; else getFixer">
           {{ element.fixer }}
         </ng-container>
@@ -187,7 +187,6 @@
         cancelled: getStatusLabel(row.status) === 'Cancelled',
         blacklist: row.black_list === true
       }"
-      [routerLink]="['/admin/requests/details', row._id]"
     ></tr>
   </table>
 

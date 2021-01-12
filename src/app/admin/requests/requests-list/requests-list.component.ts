@@ -15,7 +15,7 @@ import { RequestPageParams, RequestsFacade } from '../requests.facade';
 import { UsersFacade } from '@users/users.facade';
 import { GeolocationService } from '@shared/services/geolocation/geolocation.service';
 
-import { IRequest } from '@shared/models';
+import { IRequest, IRequestDetails } from '@shared/models';
 import { TagsFacade } from '@shared/tags/tags.facade';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { MatDialog } from '@angular/material/dialog';
@@ -23,13 +23,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ActionsSubject } from '@ngrx/store';
 import { ofType } from '@ngrx/effects';
 import { saveRequestSuccessAction } from '../requests.actions';
-import { RequestDetailsComponent } from '../request-details/request-details.component';
 import {
   FilterInputColumns,
   FilterObservableSelectColumns,
   FilterSelectColumns,
 } from '@shared/filter/filter.types';
 import { KIV_ZONES } from '@shared/constants';
+import { RequestFormComponent } from '../shared/request-form/request-form.component';
 
 @Component({
   templateUrl: './requests-list.component.html',
@@ -223,9 +223,9 @@ export class RequestsListComponent implements OnInit {
     }
   }
 
-  openNewRequestDialog() {
-    const dialogRef = this.matDialog.open(RequestDetailsComponent, {
-      data: {},
+  openRequestDialog(element: IRequestDetails = null) {
+    const dialogRef = this.matDialog.open(RequestFormComponent, {
+      data: { element } || { object: 'null' },
       maxWidth: '100%',
       maxHeight: '90vh',
       panelClass: 'newrequest-custom-modalbox',
