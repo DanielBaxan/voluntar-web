@@ -131,8 +131,6 @@ export class RequestFormComponent implements OnInit, OnDestroy {
               ' ' +
               this.existentBeneficiary.first_name;
           }
-          console.log(this.existentBeneficiary);
-          console.log(this.beneficiaryName);
           this.cdr.detectChanges();
         },
         (error) => {
@@ -141,7 +139,6 @@ export class RequestFormComponent implements OnInit, OnDestroy {
         }
       );
     }
-    console.log(this.existentBeneficiary);
   }
 
   updateDataFromBeneficiary() {
