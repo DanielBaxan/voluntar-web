@@ -15,7 +15,7 @@ import { RequestPageParams, RequestsFacade } from '../requests.facade';
 import { UsersFacade } from '@users/users.facade';
 import { GeolocationService } from '@shared/services/geolocation/geolocation.service';
 
-import { IRequest, IRequestDetails } from '@shared/models';
+import { IRequest, IRequestDetails, IRequestNew } from '@shared/models';
 import { TagsFacade } from '@shared/tags/tags.facade';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { MatDialog } from '@angular/material/dialog';
@@ -223,7 +223,7 @@ export class RequestsListComponent implements OnInit {
     }
   }
 
-  openRequestDialog(element: IRequestDetails = {} as IRequestDetails) {
+  openRequestDialog(element: IRequestNew = {} as IRequestNew) {
     const dialogRef = this.matDialog.open(RequestFormComponent, {
       data: { element },
       maxWidth: '100%',

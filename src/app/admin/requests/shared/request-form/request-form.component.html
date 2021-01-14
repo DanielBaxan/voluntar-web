@@ -1,9 +1,11 @@
 <div class="modal_header_line" fxLayout="row" fxLayoutAlign="center center">
-  <a>Crează Cerere Nouă</a>
-  <!-- <a *ngIf="request !== null">Editează Cerere</a> -->
+  <a *ngIf="isEmpty(request); else titleEdit">Crează Cerere Nouă</a>
+  <ng-template #titleEdit>
+    <a>Cerere Neprelucrata</a>
+  </ng-template>
 </div>
-<form [formGroup]="form" (ngSubmit)="onSubmit($event)">
-  <div class="content">
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="content" formGroupName="beneficiary">
     <div class="fieldset">Detalii Beneficiar</div>
 
     <div class="fields_row" id="telephone">
@@ -23,7 +25,9 @@
             [autofocus]="true"
             (change)="checkForExistentBeneficiary($event.target.value)"
           />
-          <mat-error *ngIf="form.get('phone').invalid && form.touched">
+          <mat-error
+            *ngIf="form.get('beneficiary.phone').invalid && form.touched"
+          >
             'atenție, eroare - cîmp de 8 cifre obligatoriu!'
           </mat-error>
         </div>
@@ -39,7 +43,9 @@
             tabindex="-1"
           />
           <input matInput formControlName="landline" class="phone_number" />
-          <mat-error *ngIf="form.get('landline').invalid && form.touched">
+          <mat-error
+            *ngIf="form.get('beneficiary.landline').invalid && form.touched"
+          >
             'atenție, eroare - cîmp de 6 cifre obligatoriu!'
           </mat-error>
         </div>
@@ -74,7 +80,9 @@
         <div class="title">Nume (Familie)</div>
         <div class="value">
           <input matInput style="width: 185px" formControlName="last_name" />
-          <mat-error *ngIf="form.get('last_name').invalid && form.touched">
+          <mat-error
+            *ngIf="form.get('beneficiary.last_name').invalid && form.touched"
+          >
             atenție, eroare - cîmp obligatoriu!
           </mat-error>
         </div>
@@ -84,7 +92,9 @@
         <div class="title">Prenume</div>
         <div class="value">
           <input matInput style="width: 185px" formControlName="first_name" />
-          <mat-error *ngIf="form.get('first_name').invalid && form.touched">
+          <mat-error
+            *ngIf="form.get('beneficiary.first_name').invalid && form.touched"
+          >
             atenție, eroare - cîmp obligatoriu!
           </mat-error>
         </div>
@@ -117,7 +127,9 @@
               {{ sec.charAt(0).toUpperCase() + sec.slice(1) }}
             </mat-option>
           </mat-select>
-          <mat-error *ngIf="form.get('zone').invalid && form.touched">
+          <mat-error
+            *ngIf="form.get('beneficiary.zone').invalid && form.touched"
+          >
             atenție, eroare - cîmp obligatoriu!
           </mat-error>
         </div>
@@ -131,7 +143,9 @@
           (gotCoordinates)="updateAddress($event)"
           [selectedAddress]="requestAddress"
         ></app-request-address-field>
-        <mat-error *ngIf="form.get('address').invalid && form.touched">
+        <mat-error
+          *ngIf="form.get('beneficiary.address').invalid && form.touched"
+        >
           atenție, eroare - cîmp obligatoriu!
         </mat-error>
         <mat-error *ngIf="!validAddress && form.touched">
@@ -183,7 +197,9 @@
             </mat-option>
           </mat-select>
           <mat-error
-            *ngIf="form.get('special_condition').invalid && form.touched"
+            *ngIf="
+              form.get('beneficiary.special_condition').invalid && form.touched
+            "
           >
             atenție, eroare - cîmp obligatoriu!
           </mat-error>
@@ -200,7 +216,7 @@
         <div class="title">Are nevoie de</div>
         <div class="value">
           <mat-select
-            formControlName="need"
+            formControlName="type"
             style="width: 230px"
             placeholder="Alege"
           >
@@ -212,7 +228,7 @@
               {{ need.value }}
             </mat-option>
           </mat-select>
-          <mat-error *ngIf="form.get('need').invalid && form.touched">
+          <mat-error *ngIf="form.get('type').invalid && form.touched">
             atenție, eroare - cîmp obligatoriu!
           </mat-error>
         </div>
@@ -222,7 +238,7 @@
         <div class="title">Boală contagioasă</div>
         <div class="value">
           <mat-select
-            formControlName="ilness"
+            formControlName="has_symptoms"
             style="width: 230px"
             placeholder="Alege"
           >
@@ -235,7 +251,7 @@
               Are simptome
             </mat-option>
           </mat-select>
-          <mat-error *ngIf="form.get('ilness').invalid && form.touched">
+          <mat-error *ngIf="form.get('has_symptoms').invalid && form.touched">
             atenție, eroare - cîmp obligatoriu!
           </mat-error>
         </div>
@@ -260,10 +276,11 @@
       <div class="field" fxFlex fxLayout="column">
         <div class="title">Parola secretă</div>
         <div class="value">
-          <input matInput formControlName="password" style="width: 150px" />
+          <input matInput formControlName="secret" style="width: 150px" />
           <mat-error
             *ngIf="
-              (validatePassword() || form.get('password').invalid) &&
+              ((!isEmpty(existentBeneficiary) && checkPassword()) ||
+                form.get('secret').invalid) &&
               form.touched
             "
           >
@@ -280,7 +297,7 @@
     </div>
   </div>
 
-  <div class="footer">
+  <div class="footer" *ngIf="isEmpty(request); else buttonsEdit">
     <button
       mat-flat-button
       color="primary"
@@ -290,4 +307,26 @@
       Crează
     </button>
   </div>
+  <ng-template #buttonsEdit>
+    <div class="footer">
+      <button
+        mat-flat-button
+        id="update"
+        color="primary"
+        [disabled]="form.invalid"
+        type="submit"
+      >
+        Confirmă
+      </button>
+      <button
+        mat-flat-button
+        id="remove"
+        color="primary"
+        [disabled]="form.invalid"
+        type="submit"
+      >
+        Șterge
+      </button>
+    </div>
+  </ng-template>
 </form>

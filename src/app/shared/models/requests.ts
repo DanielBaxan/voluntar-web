@@ -1,3 +1,6 @@
+import { Beneficiary } from './beneficiary';
+import { IVolunteer } from './volunteers';
+
 export type RequestStatus =
   | 'new'
   | 'confirmed'
@@ -6,13 +9,12 @@ export type RequestStatus =
   | 'solved'
   | 'archived';
 export type RequestType = 'warm_lunch' | 'grocery' | 'medicine';
-export enum RequestTypeUpdated {
-  warm_lunch = 'Prânz Cald',
-  grocery = 'Produse Alimentare',
-  medicine = 'Medicamente',
-  invoices = 'Achitare Facturi',
-  transport = 'Transport Persoana',
-}
+export type NewRequestType =
+  | 'warm_lunch'
+  | 'grocery'
+  | 'medicine'
+  | 'invoices'
+  | 'transport';
 
 export interface IRequest {
   _id?: string;
@@ -57,6 +59,21 @@ export interface IRequest {
 
 export interface IRequestDetails extends IRequest {
   created_at: string;
+}
+
+export interface IRequestNew {
+  _id?: string;
+  beneficiary: Beneficiary;
+  user: string;
+  type: NewRequestType;
+  status: RequestStatus;
+  number: number;
+  secret: string;
+  urgent: boolean;
+  comments: string;
+  has_symptoms: boolean;
+  created_at: string;
+  volunteer: IVolunteer;
 }
 
 // export interface IComment { }
