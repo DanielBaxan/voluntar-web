@@ -1,8 +1,5 @@
 <div class="modal_header_line" fxLayout="row" fxLayoutAlign="center center">
-  <a *ngIf="isEmpty(request); else titleEdit">Crează Cerere Nouă</a>
-  <ng-template #titleEdit>
-    <a>Cerere Neprelucrata</a>
-  </ng-template>
+  <a>Crează Cerere Nouă</a>
 </div>
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
   <div class="content" formGroupName="beneficiary">
@@ -277,13 +274,7 @@
         <div class="title">Parola secretă</div>
         <div class="value">
           <input matInput formControlName="secret" style="width: 150px" />
-          <mat-error
-            *ngIf="
-              ((!isEmpty(existentBeneficiary) && checkPassword()) ||
-                form.get('secret').invalid) &&
-              form.touched
-            "
-          >
+          <mat-error *ngIf="form.get('secret').invalid && form.touched">
             atenție, parola greșită!
           </mat-error>
         </div>
@@ -297,7 +288,7 @@
     </div>
   </div>
 
-  <div class="footer" *ngIf="isEmpty(request); else buttonsEdit">
+  <div class="footer">
     <button
       mat-flat-button
       color="primary"
@@ -307,26 +298,4 @@
       Crează
     </button>
   </div>
-  <ng-template #buttonsEdit>
-    <div class="footer">
-      <button
-        mat-flat-button
-        id="update"
-        color="primary"
-        [disabled]="form.invalid"
-        type="submit"
-      >
-        Confirmă
-      </button>
-      <button
-        mat-flat-button
-        id="remove"
-        color="primary"
-        [disabled]="form.invalid"
-        type="submit"
-      >
-        Șterge
-      </button>
-    </div>
-  </ng-template>
 </form>

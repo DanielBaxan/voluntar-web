@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  ElementRef,
   Inject,
   OnInit,
 } from '@angular/core';
@@ -11,10 +12,13 @@ import { RequestsFacade } from '../../requests.facade';
 import { BeneficiariesService } from '../../../beneficiaries/beneficiaries.service';
 import { coordinates } from './request-address-field/request-address-field.component';
 import { IRequestNew } from '../../../../shared/models/requests';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Beneficiary } from '@app/shared/models';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { combineLatest } from 'rxjs';
+import { filter, first } from 'rxjs/operators';
 
-export enum RequestTypeRomanian {
+export enum RequestType {
   warm_lunch = 'Prânz Cald',
   grocery = 'Produse Alimentare',
   medicine = 'Medicamente',
@@ -29,10 +33,9 @@ export enum RequestTypeRomanian {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RequestFormComponent implements OnInit {
-  request: IRequestNew;
   form: FormGroup;
   zones: Array<string> = Object.keys(ZONES).filter((key) => isNaN(+key));
-  needs = RequestTypeRomanian;
+  needs = RequestType;
   specialConditions = SPECIAL_CONDITIONS;
   existentBeneficiary: Beneficiary = {} as Beneficiary;
   validAddress = true;
@@ -41,116 +44,87 @@ export class RequestFormComponent implements OnInit {
 
   constructor(
     private requestsFacade: RequestsFacade,
+    private snackBar: MatSnackBar,
     private beneficiariesService: BeneficiariesService,
     private cdr: ChangeDetectorRef,
+    public dialogRef: MatDialogRef<RequestFormComponent>,
     @Inject(MAT_DIALOG_DATA) protected data: { element: IRequestNew }
   ) {}
 
   onSubmit() {
     if (this.form.invalid) return;
 
-    // console.log({
-    //   ...this.form.value,
-    // });
+    const payload = {
+      ...this.form.value,
+    };
+    payload.beneficiary.landline = `22${payload.beneficiary.landline}`;
 
-    // this.requestsFacade.saveRequest({
-    //   ...this.form.value,
-    // });
+    console.log(payload);
+
+    // this.requestsFacade.saveRequest(payload);
+    // combineLatest([this.requestsFacade.isLoading$, this.requestsFacade.error$])
+    //   .pipe(
+    //     filter(([status, error]) => !status && !error),
+    //     first()
+    //   )
+    //   .subscribe(() => {
+    //     this.snackBar.open('Cererea a fost salvată cu success.', '', {
+    //       duration: 5000,
+    //       horizontalPosition: 'right',
+    //       verticalPosition: 'top',
+    //     });
+    //     this.closeDialog();
+    //   });
   }
 
   ngOnInit(): void {
-    this.request = this.data.element;
     this.form = new FormGroup({
       beneficiary: new FormGroup({
-        first_name: new FormControl(
-          this.isEmpty(this.request)
-            ? null
-            : this.request.beneficiary.first_name,
-          [Validators.required]
-        ),
-        last_name: new FormControl(
-          this.isEmpty(this.request)
-            ? null
-            : this.request.beneficiary.last_name,
-          [Validators.required]
-        ),
-        age: new FormControl(
-          this.isEmpty(this.request) ? null : this.request.beneficiary.age
-        ),
-        zone: new FormControl(
-          this.isEmpty(this.request) ? null : this.request.beneficiary.zone,
-          [Validators.required]
-        ),
-        address: new FormControl(
-          this.isEmpty(this.request) ? null : this.request.beneficiary.address,
-          [Validators.required]
-        ),
-        apartment: new FormControl(
-          this.isEmpty(this.request) ? null : this.request.beneficiary.apartment
-        ),
-        entrance: new FormControl(
-          this.isEmpty(this.request) ? null : this.request.beneficiary.entrance
-        ),
-        floor: new FormControl(
-          this.isEmpty(this.request) ? null : this.request.beneficiary.floor
-        ),
-        phone: new FormControl(
-          this.isEmpty(this.request) ? null : this.request.beneficiary.phone,
-          [
-            Validators.required,
-            Validators.minLength(8),
-            Validators.maxLength(8),
-            Validators.pattern(/^([0-9]){8}$/),
-          ]
-        ),
-        landline: new FormControl(
-          this.isEmpty(this.request) ? null : this.request.beneficiary.landline,
-          [
-            Validators.required,
-            Validators.minLength(6),
-            Validators.maxLength(6),
-            Validators.pattern(/^([0-9]){6}$/),
-          ]
-        ),
-        special_condition: new FormControl(
-          this.isEmpty(this.request)
-            ? null
-            : this.request.beneficiary.special_condition,
-          [Validators.required]
-        ),
+        first_name: new FormControl(null, [Validators.required]),
+        last_name: new FormControl(null, [Validators.required]),
+        age: new FormControl(null),
+        zone: new FormControl(null, [Validators.required]),
+        address: new FormControl(null, [Validators.required]),
+        apartment: new FormControl(null),
+        entrance: new FormControl(null),
+        floor: new FormControl(null),
+        phone: new FormControl(null, [
+          Validators.required,
+          Validators.minLength(8),
+          Validators.maxLength(8),
+          Validators.pattern(/^([0-9]){8}$/),
+        ]),
+        landline: new FormControl(null, [
+          Validators.required,
+          Validators.minLength(6),
+          Validators.maxLength(6),
+          Validators.pattern(/^([0-9]){6}$/),
+        ]),
+        special_condition: new FormControl(null, [Validators.required]),
       }),
-      has_symptoms: new FormControl(
-        this.isEmpty(this.request) ? null : this.request.has_symptoms,
-        [Validators.required]
-      ),
-      type: new FormControl(
-        this.isEmpty(this.request) ? '' : this.request.type,
-        [Validators.required]
-      ),
-      comments: new FormControl(
-        this.isEmpty(this.request) ? '' : this.request.comments
-      ),
-      secret: new FormControl(
-        this.isEmpty(this.request) ? this.getSecret() : null,
-        [Validators.required, Validators.minLength(5), Validators.maxLength(5)]
-      ),
-      urgent: new FormControl(
-        this.isEmpty(this.request) ? false : this.request.urgent
-      ),
+      has_symptoms: new FormControl(null, [Validators.required]),
+      type: new FormControl('', [Validators.required]),
+      comments: new FormControl(''),
+      secret: new FormControl(this.getSecret(), [
+        (Validators.required, Validators.minLength(5), Validators.maxLength(5)),
+      ]),
+      urgent: new FormControl(false),
     });
-    if (!this.isEmpty(this.request))
-      this.requestAddress = this.request.beneficiary.address;
   }
 
-  getEnumKeyByEnumValue(myEnum, enumValue) {
-    const keys = Object.keys(myEnum).filter((x) => myEnum[x] === enumValue);
-    return keys.length > 0 ? keys[0] : null;
+  closeDialog() {
+    this.dialogRef.close();
   }
+
+  // getEnumKeyByEnumValue(myEnum, enumValue) {
+  //   const keys = Object.keys(myEnum).filter((x) => myEnum[x] === enumValue);
+  //   return keys.length > 0 ? keys[0] : null;
+  // }
 
   enumUnsorted() {}
 
   checkForExistentBeneficiary(phone: any) {
-    if (phone.length === 8 && this.isEmpty(this.request)) {
+    if (phone.length === 8) {
       this.beneficiariesService.getBeneficiariesByFilter({ phone }).subscribe(
         (success) => {
           if (success.count !== 0) {
@@ -178,7 +152,12 @@ export class RequestFormComponent implements OnInit {
       .patchValue(this.existentBeneficiary.first_name);
     this.form
       .get('beneficiary.landline')
-      .patchValue(this.existentBeneficiary.landline);
+      .patchValue(
+        this.existentBeneficiary.landline.substring(
+          2,
+          this.existentBeneficiary.landline.length
+        )
+      );
     this.form.get('beneficiary.age').patchValue(this.existentBeneficiary.age);
     this.form.get('beneficiary.zone').patchValue(this.existentBeneficiary.zone);
     this.form
@@ -210,7 +189,7 @@ export class RequestFormComponent implements OnInit {
     this.validAddress = event.valid;
   }
 
-  isEmpty(obj: IRequestNew | Beneficiary) {
+  isEmpty(obj: Beneficiary) {
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) return false;
     }
@@ -223,14 +202,5 @@ export class RequestFormComponent implements OnInit {
     const alpha = alphabet[randomNumber(alphabet.length)];
     const digits = Array.from({ length: 4 }, () => randomNumber(10));
     return `${alpha}${digits.join('')}`;
-  }
-
-  checkPassword() {
-    if (!this.isEmpty(this.request)) {
-      if (this.form.get('password').value !== this.request.secret) {
-        return true;
-      }
-    }
-    return false;
   }
 }
