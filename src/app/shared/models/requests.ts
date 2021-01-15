@@ -61,19 +61,4 @@ export interface IRequestDetails extends IRequest {
   created_at: string;
 }
 
-export interface IRequestNew {
-  _id?: string;
-  beneficiary: Beneficiary;
-  user: string;
-  type: NewRequestType;
-  status: RequestStatus;
-  number: number;
-  secret: string;
-  urgent: boolean;
-  comments: string;
-  has_symptoms: boolean;
-  created_at: string;
-  volunteer: IVolunteer;
-}
-
 // export interface IComment { }
