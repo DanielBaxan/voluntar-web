@@ -123,6 +123,7 @@ export class RequestsFacade {
     this.store.dispatch(getRequestAction({ id }));
   }
 
+  // TODO: change request to demand inside the facade
   saveRequest(request: IRequest | IRequestDetails) {
     if (request._id) {
       this.store.dispatch(

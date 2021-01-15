@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  ElementRef,
   Inject,
   OnInit,
 } from '@angular/core';
@@ -11,20 +10,12 @@ import { SPECIAL_CONDITIONS, ZONES } from '@app/shared/constants';
 import { RequestsFacade } from '../../requests.facade';
 import { BeneficiariesService } from '../../../beneficiaries/beneficiaries.service';
 import { coordinates } from './request-address-field/request-address-field.component';
-import { IRequestNew } from '../../../../shared/models/requests';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Beneficiary } from '@app/shared/models';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { combineLatest } from 'rxjs';
 import { filter, first } from 'rxjs/operators';
-
-export enum RequestType {
-  warm_lunch = 'Prânz Cald',
-  grocery = 'Produse Alimentare',
-  medicine = 'Medicamente',
-  invoices = 'Achitare Facturi',
-  transport = 'Transport Persoana',
-}
+import { Demand, DemandType } from '@app/shared/models/demand';
 
 @Component({
   selector: 'app-request-form',
@@ -35,7 +26,7 @@ export enum RequestType {
 export class RequestFormComponent implements OnInit {
   form: FormGroup;
   zones: Array<string> = Object.keys(ZONES).filter((key) => isNaN(+key));
-  needs = RequestType;
+  needs = DemandType;
   specialConditions = SPECIAL_CONDITIONS;
   existentBeneficiary: Beneficiary = {} as Beneficiary;
   validAddress = true;
@@ -48,7 +39,7 @@ export class RequestFormComponent implements OnInit {
     private beneficiariesService: BeneficiariesService,
     private cdr: ChangeDetectorRef,
     public dialogRef: MatDialogRef<RequestFormComponent>,
-    @Inject(MAT_DIALOG_DATA) protected data: { element: IRequestNew }
+    @Inject(MAT_DIALOG_DATA) protected data: { element: Demand }
   ) {}
 
   onSubmit() {
@@ -115,11 +106,6 @@ export class RequestFormComponent implements OnInit {
   closeDialog() {
     this.dialogRef.close();
   }
-
-  // getEnumKeyByEnumValue(myEnum, enumValue) {
-  //   const keys = Object.keys(myEnum).filter((x) => myEnum[x] === enumValue);
-  //   return keys.length > 0 ? keys[0] : null;
-  // }
 
   enumUnsorted() {}
 
