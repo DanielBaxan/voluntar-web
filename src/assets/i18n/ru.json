@@ -65,6 +65,7 @@
   "back": "Înapoi",
   "active": "Activ",
   "no_users": "Lipsă utilizatori",
+  "no_volunteers": "Lipsă voluntari",
   "view_user": "Vezi utilizator",
   "edit": "Editează",
   "demands_history": "Istoric cereri",
@@ -89,6 +90,9 @@
   "canceled": "Anulat",
   "solved": "Rezolvat",
   "archived": "Arhivat",
+  "disability": "Disability",
+  "deafmute": "Deaf-mute",
+  "blind_weak_seer": "Blind/Weak-seer",
   "hero": {
     "headline": "Инициатива <span>Вместе<br />против COVID-19</span>",
     "description": "Гражданский проект, который объединяет усилия и помогает людям в неблагоприятных ситуациях во время пандемии COVID-19"

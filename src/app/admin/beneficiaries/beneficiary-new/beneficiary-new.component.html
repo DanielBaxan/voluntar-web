@@ -80,8 +80,8 @@
             style="width: 230px"
             placeholder="Alege"
           >
-            <mat-option *ngFor="let zone of zones" [value]="zone.value">
-              {{ zone.label }}
+            <mat-option *ngFor="let zone of zones" [value]="zone">
+              {{ zone | translate }}
             </mat-option>
           </mat-select>
         </div>
@@ -127,10 +127,10 @@
           >
             <mat-option>--</mat-option>
             <mat-option
-              *ngFor="let item of specialConditions"
-              [value]="item.value"
+              *ngFor="let condition of specialConditions"
+              [value]="condition"
             >
-              {{ item.label }}
+              {{ condition | translate }}
             </mat-option>
           </mat-select>
         </div>

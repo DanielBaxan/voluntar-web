@@ -21,7 +21,13 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatDialog } from '@angular/material/dialog';
 import { EsriMapComponent } from '@shared/esri-map/esri-map.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { KIV_ZONES } from '@shared/constants';
+import { zones } from '@shared/constants';
+import {
+  getAvailabilitiesTagsAction,
+  getOffersTagsAction,
+} from '@shared/tags/tags.actions';
+import { Store } from '@ngrx/store';
+import { AppState } from '@app/app.state';
 
 const minTemp = 36;
 const maxTemp = 41;
@@ -32,7 +38,7 @@ const maxTemp = 41;
 })
 export class VolunteersDetailsComponent implements OnInit, OnDestroy {
   public tempStep = '0.1';
-  zones = KIV_ZONES;
+  zones = zones;
 
   public cities = [
     { name: 'Chisinau', value: 'chisinau' },
@@ -112,8 +118,12 @@ export class VolunteersDetailsComponent implements OnInit, OnDestroy {
     private geolocationService: GeolocationService,
     private matDialog: MatDialog,
     private elementRef: ElementRef,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    store: Store<AppState>
   ) {
+    store.dispatch(getAvailabilitiesTagsAction());
+    store.dispatch(getOffersTagsAction());
+
     this.route.paramMap
       .pipe(
         map((params) => params.get('id')),
